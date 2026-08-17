@@ -1,0 +1,97 @@
+import pandas as pd
+import statsmodels.api as sm
+import statistics
+import math
+
+import matplotlib.pyplot as plt
+
+# Accessing a File from the Web from Gareth et al., 2013 
+url = "https://www.statlearning.com/s/Advertising.csv"
+
+dat = pd.read_csv(url)
+
+dat.shape  # dimensions of the dataset 
+dat.columns
+
+dat.head()
+dat.dtypes
+
+dat=dat.drop("Unnamed: 0", axis=1)
+dat.head()
+
+dat.TV
+dat.sales
+
+#bivariate linear regression
+# Create a scatterplot to describe the relationship
+plt.scatter(dat.TV, dat.sales, )
+plt.xlabel('TV Advertising Budget')
+plt.ylabel('Sales')
+plt.show() 
+
+#estimate linear regression coefficients 
+X=sm.add_constant(dat.TV)
+y=dat.sales
+
+#fit a linear model 
+model_1 =sm.OLS(y, X).fit()
+model_1.summary()
+
+# use the model to make predictions
+y_hat = model_1.predict(X)  # Predicted values
+y_hat
+
+# Create a scatter plot with the regression line
+plt.scatter(dat.TV, dat.sales)
+plt.plot(dat.TV, y_hat, color="red", linestyle="dashed")
+plt.xlabel('TV Advertising Budget')
+plt.ylabel('Sales')
+plt.show()
+
+# Residuals
+## Calculate residuals
+residuals = y - y_hat
+
+plt.hist(residuals)
+plt.show()
+
+plt.plot(residuals)
+plt.show()
+
+residuals.head()
+residuals.mean()
+
+# Residuals
+## Calculate residuals
+residuals = y - y_hat
+residuals[:5]
+# Another function to calculate residuals using statsmodels
+residuals = model_1.resid
+
+#RSS/ SSE (sum of square errors)
+SSE= (residuals**2).sum()
+print(SSE)
+
+#total sum of squares (TSS)
+TSS= ((y-y.mean())**2).sum()
+
+#R-square
+rsqr= 1-SSE/TSS
+
+## Sum of Squares Total (SST)
+SST = sum((dat.sales - dat.sales.mean())**2)
+print(SST)
+
+#residual standard error (RSE)
+RSE = math.sqrt(SSE / (len(dat.sales) - 1 - 1))
+print(RSE)
+
+statistics.mean(dat.sales) # Check mean of sales
+
+#level of error
+RSE/ dat.sales.mean()*100
+
+# Coefficient of Determination (R-squared)
+R_squared = 1 - (SSE / SST)
+
+print(f'R-squared: {R_squared:.4f}')
